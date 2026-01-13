@@ -13,10 +13,12 @@ import { AuthGuard } from './auth/auth.guard';
 import { Roles } from 'src/roles/role.decorator';
 import { Role } from 'src/roles/roles.enum';
 import { RolesGuard } from 'src/roles/roles.guard';
+import { Public } from 'src/common/decorators/public.decorator';
 
 @Controller('users')
 export class UsersController {
   constructor(private userService: UsersService) {}
+   @Public()
   @Post('/signup')
   async create(
     @Body()
@@ -25,6 +27,7 @@ export class UsersController {
     return await this.userService.signup(createUserDTO);
   }
 
+   @Public()
   @Post('/login')
   async login(
     @Body()
