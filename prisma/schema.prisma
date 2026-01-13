@@ -76,6 +76,8 @@ model Issue {
   title         String
   description   String
   imageUrl      String?
+  address       String
+  landmark      String?
   status        IssueStatus @default(OPEN)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
