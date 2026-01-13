@@ -1,1 +1,17 @@
-export class CreateIssueDto {}
+import { IsString,IsOptional,IsNumber } from "class-validator";
+
+export class CreateIssueDto {
+    @IsString()
+    title :String;
+    @IsString()
+    description :String;
+    @IsOptional()
+    @IsString()
+    imageUrl :String;
+    @IsString()
+    address : String;
+    @IsString()
+    landmark : String;
+    @IsNumber()
+    department : number;
+}
