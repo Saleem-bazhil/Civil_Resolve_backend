@@ -19,6 +19,20 @@ enum Role {
   OFFICER
 }
 
+enum IssueStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum NotificationType {
+  ISSUE_CREATED
+  STATUS_CHANGED
+  SLA_WARNING
+  SLA_BREACH
+}
+
 model User {
   id    Int     @default(autoincrement()) @id
   firstname String?
@@ -29,4 +43,87 @@ model User {
   blocked Boolean?
 
   role Role @default(CITIZEN)
+
+  officer Officer?
+  issue Issue[] @relation("CitizenIssues")
+  notification Notification[]
+}
+
+model Department {
+  id Int       @default(autoincrement()) @id
+  name String @unique
+  CreatedAt DateTime @default(now())
+
+  Officers Officer[]
+  issue Issue[]
+  slaRules  SlaRule[]
+
+}
+
+model Officer {
+  id Int      @default(autoincrement()) @id
+  userId Int  @unique
+  departmentId Int
+  isActive     Boolean @default(true)
+
+  user  User  @relation(fields:[userId],references:[id])
+  department Department @relation(fields:[departmentId],references:[id])
+  assignedIssues Issue[]
+}
+
+model Issue {
+  id            Int         @default(autoincrement())  @id 
+  title         String
+  description   String
+  imageUrl      String?
+  status        IssueStatus @default(OPEN)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  citizenId     Int
+  departmentId  Int
+  officerId     Int?
+  slaDeadline   DateTime?
+
+  citizen    User        @relation("CitizenIssues", fields: [citizenId], references: [id])
+  department Department  @relation(fields: [departmentId], references: [id])
+  officer    Officer?    @relation(fields: [officerId], references: [id])
+
+  statusHistory IssueStatusHistory[] 
+  notification  Notification[]
+
+
+}
+
+model IssueStatusHistory {
+  id   Int @default(autoincrement()) @id
+  issueId Int
+  oldStatus IssueStatus
+  newStatus IssueStatus
+  changedBy Int
+  changedAt DateTime   @default(now())
+
+  issue Issue @relation(fields: [issueId], references: [id])
+}
+
+model SlaRule {
+  id           Int      @id @default(autoincrement())
+  departmentId Int
+  hours        Int
+  createdAt    DateTime @default(now())
+
+  department Department @relation(fields: [departmentId], references: [id])
+}
+
+model Notification {
+  id        Int              @id @default(autoincrement())
+  userId    Int
+  issueId   Int?
+  type      NotificationType
+  message   String
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  issue Issue? @relation(fields: [issueId], references: [id])
 }
