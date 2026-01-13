@@ -30,7 +30,7 @@ export class IssueService {
       orderBy:{createdAt:'desc'},
       include:{
         department:true,
-        officer:true,
+        // officer:true,
       }
     });
   }
@@ -41,7 +41,7 @@ export class IssueService {
       include:{
         statusHistory:true,
         department:true,
-        officer:true,
+        // officer:true,
       }
     });
     if (!issue) {
@@ -53,7 +53,7 @@ export class IssueService {
     return issue
   }
 
-  async update(id: number,userId:number, dto: UpdateIssueDto) {
+  async updateIssue(id: number,userId:number, dto: UpdateIssueDto) {
     const issue = await this.prisma.issue.findUnique({
       where :{id},
     });
@@ -69,7 +69,7 @@ export class IssueService {
     });
   }
 
-  async deleteIsuue(id: number,userId:number) {
+  async deleteIssue(id: number,userId:number) {
     const issue = await this.prisma.issue.findUnique({
       where:{id}
     });

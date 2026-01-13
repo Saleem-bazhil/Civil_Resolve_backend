@@ -2,17 +2,22 @@ import { IsString,IsOptional,IsNumber } from "class-validator";
 
 export class CreateIssueDto {
     @IsString()
-    title :String;
+    title :string;
+
     @IsString()
-    description :String;
+    description :string;
+
     @IsOptional()
     @IsString()
-    imageUrl? :String;
+    imageUrl? :string;
+
     @IsString()
-    address : String;
+    address : string;
+
     @IsString()
     @IsOptional()
-    landmark? : String;
+    landmark? : string;
+
     @IsNumber()
     departmentId : number;
 }
