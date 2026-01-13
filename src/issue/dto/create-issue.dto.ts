@@ -7,11 +7,12 @@ export class CreateIssueDto {
     description :String;
     @IsOptional()
     @IsString()
-    imageUrl :String;
+    imageUrl? :String;
     @IsString()
     address : String;
     @IsString()
-    landmark : String;
+    @IsOptional()
+    landmark? : String;
     @IsNumber()
-    department : number;
+    departmentId : number;
 }
