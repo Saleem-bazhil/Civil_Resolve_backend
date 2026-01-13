@@ -23,25 +23,21 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 export class IssueController {
   constructor(private readonly issueService: IssueService) {}
 
-  // CREATE
   @Post()
   create(@Req() req, @Body() dto: CreateIssueDto) {
     return this.issueService.createIssue(req.user.id, dto);
   }
 
-  // READ (My Issues)
   @Get()
   findMyIssues(@Req() req) {
     return this.issueService.findAllIssue(req.user.id);
   }
 
-  // READ (Single Issue)
   @Get(':id')
   findOne(@Param('id') id: string, @Req() req) {
     return this.issueService.findOne(+id, req.user.id);
   }
 
-  // UPDATE
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -51,7 +47,6 @@ export class IssueController {
     return this.issueService.updateIssue(+id, req.user.id, dto);
   }
 
-  // DELETE
   @Delete(':id')
   remove(@Param('id') id: string, @Req() req) {
     return this.issueService.deleteIssue(+id, req.user.id);
