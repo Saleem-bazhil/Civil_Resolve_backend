@@ -2,9 +2,10 @@ import { Injectable,ForbiddenException,NotFoundException } from '@nestjs/common'
 import { CreateIssueDto } from './dto/create-issue.dto';
 import { UpdateIssueDto } from './dto/update-issue.dto';
 import { PrismaService } from 'src/prisma.service';
-import { Prisma } from '@prisma/client';
 import { IssueStatus } from '@prisma/client';
-import { Issue } from './entities/issue.entity';
+import { STATUS_TRANSITIONS } from './issue.constants';
+import { UpdateStatusDto } from './dto/update-status.dto';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class IssueService {
@@ -85,5 +86,41 @@ export class IssueService {
       where:{id},
     });
 
+  }
+
+  async updateStatus(IssueId:number,userId:number,role:Role,dto:UpdateStatusDto){
+    const issue = await this.prisma.issue.findUnique({
+      where:{id:IssueId},
+    });
+    if (!issue){
+      throw new NotFoundException ("Issue Not Found")
+    }
+
+    if(role == Role.CITIZEN){
+      throw new ForbiddenException("Citizen Cannot Change the Status")
+    }
+
+    const allowedNext = STATUS_TRANSITIONS[issue.status];
+
+    if (!allowedNext.includes(dto.status)) {
+      throw new ForbiddenException("Invalid Status transtion");
+    }
+
+    const updatedIssue = await this.prisma.issue.update({
+      where: { id: IssueId  },
+      data: { status: dto.status },
+    });
+
+  // status history
+    await this.prisma.issueStatusHistory.create({
+      data: {
+        issueId: issue.id,
+        oldStatus: issue.status,
+        newStatus: dto.status,
+        changedBy: userId,
+      },
+    });
+
+  return updatedIssue;
   }
 }

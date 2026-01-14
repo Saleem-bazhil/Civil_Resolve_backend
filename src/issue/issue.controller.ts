@@ -14,6 +14,7 @@ import { IssueService } from './issue.service';
 import { CreateIssueDto } from './dto/create-issue.dto';
 import { UpdateIssueDto } from './dto/update-issue.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { UpdateStatusDto } from './dto/update-status.dto';
            
 @ApiBearerAuth('JWT-auth') 
 // @UseGuards(AuthGuard('jwt'))
@@ -51,4 +52,18 @@ export class IssueController {
   remove(@Param('id') id: string, @Req() req) {
     return this.issueService.deleteIssue(+id, req.user.id);
   }
+
+  @Patch(':id/status')
+updateStatus(
+  @Param('id') id: string,
+  @Req() req,
+  @Body() dto: UpdateStatusDto,
+) {
+  return this.issueService.updateStatus(
+    +id,
+    req.user.id,
+    req.user.role,
+    dto,
+  );
+}
 }
