@@ -18,7 +18,8 @@ export class IssueService {
         address:dto.address,
         landmark:dto.landmark,
         citizenId:userId,
-        departmentId:dto.departmentId,
+        category: dto.category,
+        area: dto.area,
         status:IssueStatus.OPEN,
       },
     });

@@ -16,4 +16,6 @@ export class UpdateIssueDto {
   @IsOptional()
   @IsString()
   imageUrl?: string;
+
+  
 }

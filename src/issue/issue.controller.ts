@@ -15,7 +15,7 @@ import { CreateIssueDto } from './dto/create-issue.dto';
 import { UpdateIssueDto } from './dto/update-issue.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
            
-// @ApiBearerAuth('JWT-auth') 
+@ApiBearerAuth('JWT-auth') 
 // @UseGuards(AuthGuard('jwt'))
 @UseGuards(AuthGuard)
 

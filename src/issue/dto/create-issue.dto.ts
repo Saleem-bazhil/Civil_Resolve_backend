@@ -18,6 +18,9 @@ export class CreateIssueDto {
     @IsOptional()
     landmark? : string;
 
-    @IsNumber()
-    departmentId : number;
+    @IsString()
+    category: string;
+
+    @IsString()
+    area: string;
 }

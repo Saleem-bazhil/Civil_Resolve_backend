@@ -64,6 +64,7 @@ model Officer {
   id Int      @default(autoincrement()) @id
   userId Int  @unique
   departmentId Int
+  area         String
   isActive     Boolean @default(true)
 
   user  User  @relation(fields:[userId],references:[id])
@@ -78,17 +79,19 @@ model Issue {
   imageUrl      String?
   address       String
   landmark      String?
+  category      String?
+  area          String?
   status        IssueStatus @default(OPEN)
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
 
   citizenId     Int
-  departmentId  Int
+  departmentId  Int?
   officerId     Int?
   slaDeadline   DateTime?
 
   citizen    User        @relation("CitizenIssues", fields: [citizenId], references: [id])
-  department Department  @relation(fields: [departmentId], references: [id])
+  department Department?  @relation(fields: [departmentId], references: [id])
   officer    Officer?    @relation(fields: [officerId], references: [id])
 
   statusHistory IssueStatusHistory[] 
