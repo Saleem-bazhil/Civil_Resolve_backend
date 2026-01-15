@@ -97,6 +97,10 @@ model Issue {
   statusHistory IssueStatusHistory[] 
   notification  Notification[]
 
+  @@index([slaDeadline])
+  slaBreached      Boolean   @default(false)
+  escalationLevel  Int       @default(0)
+
 
 }
 
