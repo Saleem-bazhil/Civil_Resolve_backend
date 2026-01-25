@@ -8,6 +8,7 @@ import { IssueModule } from './issue/issue.module';
 import { AssignmentModule } from './assignment/assignment.module';
 import { SlaModule } from './sla/sla.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -19,8 +20,9 @@ import { ScheduleModule } from '@nestjs/schedule';
     IssueModule,
     AssignmentModule,
     SlaModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],
 })
-export class AppModule {}
+export class AppModule { }

@@ -15,14 +15,14 @@ import { CreateIssueDto } from './dto/create-issue.dto';
 import { UpdateIssueDto } from './dto/update-issue.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UpdateStatusDto } from './dto/update-status.dto';
-           
-@ApiBearerAuth('JWT-auth') 
+
+@ApiBearerAuth('JWT-auth')
 // @UseGuards(AuthGuard('jwt'))
 @UseGuards(AuthGuard)
 
 @Controller('issues')
 export class IssueController {
-  constructor(private readonly issueService: IssueService) {}
+  constructor(private readonly issueService: IssueService) { }
 
   @Post()
   create(@Req() req, @Body() dto: CreateIssueDto) {
@@ -32,6 +32,11 @@ export class IssueController {
   @Get()
   findMyIssues(@Req() req) {
     return this.issueService.findAllIssue(req.user.id);
+  }
+
+  @Get('stats')
+  getStats(@Req() req) {
+    return this.issueService.getStats(req.user.id);
   }
 
   @Get(':id')
@@ -54,16 +59,16 @@ export class IssueController {
   }
 
   @Patch(':id/status')
-updateStatus(
-  @Param('id') id: string,
-  @Req() req,
-  @Body() dto: UpdateStatusDto,
-) {
-  return this.issueService.updateStatus(
-    +id,
-    req.user.id,
-    req.user.role,
-    dto,
-  );
-}
+  updateStatus(
+    @Param('id') id: string,
+    @Req() req,
+    @Body() dto: UpdateStatusDto,
+  ) {
+    return this.issueService.updateStatus(
+      +id,
+      req.user.id,
+      req.user.role,
+      dto,
+    );
+  }
 }
