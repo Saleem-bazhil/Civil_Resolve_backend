@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Post,
+  Patch,
   UseGuards,
   Request,
 } from '@nestjs/common';
@@ -17,8 +18,8 @@ import { Public } from 'src/common/decorators/public.decorator';
 
 @Controller('users')
 export class UsersController {
-  constructor(private userService: UsersService) {}
-   @Public()
+  constructor(private userService: UsersService) { }
+  @Public()
   @Post('/signup')
   async create(
     @Body()
@@ -27,7 +28,7 @@ export class UsersController {
     return await this.userService.signup(createUserDTO);
   }
 
-   @Public()
+  @Public()
   @Post('/login')
   async login(
     @Body()
@@ -40,6 +41,13 @@ export class UsersController {
   @Get('/profile')
   @Roles(Role.Citizen)
   async getProfile(@Request() req) {
-    return req.user;
+    return this.userService.getUserProfile(req.user.id);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Citizen)
+  @Patch('/profile')
+  async updateProfile(@Request() req, @Body() body: any) {
+    return this.userService.updateProfile(req.user.id, body);
   }
 }

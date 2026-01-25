@@ -12,11 +12,11 @@ export class CreateUserDTO {
   // firstname could be empty
   @IsOptional()
   @IsString()
-  firstName: string;
+  firstname: string;
   //   lastName could be empty
   @IsOptional()
   @IsString()
-  lastName: string;
+  lastname: string;
   //   Email format
   // should not be empty
   @IsEmail()

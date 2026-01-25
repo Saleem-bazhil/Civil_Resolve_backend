@@ -15,8 +15,9 @@ export class UsersService {
   constructor(
     private prisma: PrismaService,
     private jwtService: JwtService,
-  ) {}
+  ) { }
   async signup(payload: CreateUserDTO): Promise<SignupResponse> {
+    console.log("Signup Payload:", payload);
     const existingUser = await this.prisma.user.findFirst({
       where: {
         email: payload.email,
@@ -32,9 +33,14 @@ export class UsersService {
       );
     }
     const hash = await this.encryptPassword(payload.password, 10);
-    payload.password = hash;
+
+
+
     return await this.prisma.user.create({
-      data: payload,
+      data: {
+        ...payload,
+        password: hash,
+      },
       select: {
         email: true,
         id: true,
@@ -49,11 +55,11 @@ export class UsersService {
         email: loginDTO.email,
       },
     });
-    // if there is no user we can unauthorized
+
     if (!user) {
       throw new UnauthorizedException();
     }
-    // decrypt the user password
+
     const isMatched = await this.decryptPassword(
       loginDTO.password,
       user.password,
@@ -80,5 +86,25 @@ export class UsersService {
   }
   async decryptPassword(plainText, hash) {
     return await bcrypt.compare(plainText, hash);
+  }
+
+  async getUserProfile(userId: number) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+    const { password, ...result } = user;
+    return result;
+  }
+
+  async updateProfile(userId: number, payload: any) {
+    const user = await this.prisma.user.update({
+      where: { id: userId },
+      data: payload,
+    });
+    const { password, ...result } = user;
+    return result;
   }
 }

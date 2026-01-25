@@ -41,6 +41,8 @@ model User {
   password String
   CreatedAt DateTime @default(now())
   blocked Boolean?
+  mobile String?
+  address String?
 
   role Role @default(CITIZEN)
 
