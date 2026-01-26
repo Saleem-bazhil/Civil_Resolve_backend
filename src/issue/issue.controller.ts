@@ -31,7 +31,8 @@ export class IssueController {
 
   @Get()
   findMyIssues(@Req() req) {
-    return this.issueService.findAllIssue(req.user.id);
+    console.log("findMyIssues user:", req.user);
+    return this.issueService.findAllIssue(req.user.id, req.user.role);
   }
 
   @Get('stats')
@@ -41,7 +42,7 @@ export class IssueController {
 
   @Get(':id')
   findOne(@Param('id') id: string, @Req() req) {
-    return this.issueService.findOne(+id, req.user.id);
+    return this.issueService.findOne(+id, req.user.id, req.user.role);
   }
 
   @Patch(':id')

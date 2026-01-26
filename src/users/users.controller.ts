@@ -39,13 +39,13 @@ export class UsersController {
 
   @UseGuards(AuthGuard, RolesGuard)
   @Get('/profile')
-  @Roles(Role.Citizen)
+  @Roles(Role.Citizen, Role.Officer, Role.Admin)
   async getProfile(@Request() req) {
     return this.userService.getUserProfile(req.user.id);
   }
 
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(Role.Citizen)
+  @Roles(Role.Citizen, Role.Officer, Role.Admin)
   @Patch('/profile')
   async updateProfile(@Request() req, @Body() body: any) {
     return this.userService.updateProfile(req.user.id, body);

@@ -8,15 +8,21 @@ import { UpdateStatusDto } from './dto/update-status.dto';
 import { Role } from '@prisma/client';
 import { NotificationsService } from 'src/notifications/notifications.service';
 import { NotificationType } from '@prisma/client';
+import { AssignmentService } from 'src/assignment/assignment.service';
 
 @Injectable()
 export class IssueService {
   constructor(
     private prisma: PrismaService,
-    private notificationsService: NotificationsService
+    private notificationsService: NotificationsService,
+    private assignmentService: AssignmentService,
   ) { }
   async createIssue(userId: number, dto: CreateIssueDto) {
-    return this.prisma.issue.create({
+
+    // Assign to Department And Officer 
+    const assignment = await this.assignmentService.assign(dto.category, dto.area)
+
+    const issue = await this.prisma.issue.create({
       data: {
         title: dto.title,
         description: dto.description,
@@ -27,17 +33,59 @@ export class IssueService {
         category: dto.category,
         area: dto.area,
         status: IssueStatus.OPEN,
+        departmentId: assignment.department.id, 
+        officerId: assignment.officer ? assignment.officer.id : null, 
       },
     });
+
+    if (assignment.officer) {
+      try {
+        await this.notificationsService.createNotification(
+          assignment.officer.userId,
+          NotificationType.ISSUE_CREATED,
+          `New issue Assigned: ${issue.title}`,
+          issue.id
+        )
+
+      } catch (error) {
+        console.log("Failed to notify officer", error);
+      }
+    }
+    return issue;
   }
 
-  async findAllIssue(userId: number) {
+  async findAllIssue(userId: number, role: Role = Role.CITIZEN) {
+    // console.log(`findAllIssue: userId=${userId}, role=${role}`);
+    if (role === Role.OFFICER) {
+      const officer = await this.prisma.officer.findFirst({
+        where: { userId },
+      });
+      // console.log("Found officer:", officer);
+
+      if (!officer) {
+        return []; 
+      }
+
+      return this.prisma.issue.findMany({
+        where: { officerId: officer.id },
+        orderBy: { createdAt: 'desc' },
+        include: {
+          department: true,
+          citizen: {
+            select: {
+              firstname: true,
+              lastname: true,
+              mobile: true,
+            }
+          }
+        }
+      })
+    }
     return this.prisma.issue.findMany({
       where: { citizenId: userId },
       orderBy: { createdAt: 'desc' },
       include: {
         department: true,
-        // officer:true,
       }
     });
   }
@@ -59,21 +107,33 @@ export class IssueService {
     return { total, open, resolved, inProgress };
   }
 
-  async findOne(id: number, userId: number) {
+  async findOne(id: number, userId: number, role: Role = Role.CITIZEN) {
     const issue = await this.prisma.issue.findUnique({
       where: { id },
       include: {
         statusHistory: true,
         department: true,
-        // officer:true,
+        officer: true, // check user assigned officer
       }
     });
     if (!issue) {
       throw new NotFoundException("Issue Not Found");
     }
-    if (issue.citizenId != userId) {
-      throw new ForbiddenException("Access Denied");
+
+    if (role === Role.CITIZEN) {
+      if (issue.citizenId != userId) {
+        // console.log("Access Denied: Citizen ID mismatch");
+        throw new ForbiddenException("Access Denied");
+      }
+    } else if (role === Role.OFFICER) {
+      // Find the officer record for this user
+      const officer = await this.prisma.officer.findFirst({ where: { userId } });
+
+      if (!officer || issue.officerId !== officer.id) {
+        throw new ForbiddenException("Access Denied: You are not assigned to this issue");
+      }
     }
+
     return issue
   }
 
