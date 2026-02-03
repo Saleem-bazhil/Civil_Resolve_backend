@@ -34,7 +34,7 @@ export class IssueController {
     @UploadedFile() file?: Express.Multer.File,
   ) {
     const imageUrl = file
-      ? `${process.env.BASE_URL}/uploads/${file.filename}`
+      ? `${req.protocol}://${req.get('host')}/uploads/${file.filename}`
       : undefined;
 
     return this.issueService.createIssue(req.user.id, {
