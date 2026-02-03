@@ -50,4 +50,32 @@ export class UsersController {
   async updateProfile(@Request() req, @Body() body: any) {
     return this.userService.updateProfile(req.user.id, body);
   }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Admin)
+  @Get()
+  async findAll() {
+    return this.userService.findAll();
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Admin)
+  @Post('/officer')
+  async createOfficer(@Body() body: any) {
+    return this.userService.createOfficer(body);
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Admin)
+  @Get('/departments')
+  async getDepartments() {
+    return this.userService.findAllDepartments();
+  }
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(Role.Admin)
+  @Get('/officers')
+  async getOfficers() {
+    return this.userService.findAllOfficers();
+  }
 }

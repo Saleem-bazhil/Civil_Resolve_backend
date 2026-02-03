@@ -114,4 +114,87 @@ export class UsersService {
     const { password, ...result } = user;
     return result;
   }
+
+  async findAll() {
+    const users = await this.prisma.user.findMany({
+      include: {
+        officer: {
+          include: {
+            department: true,
+          }
+        }
+      }
+    });
+    return users.map(user => {
+      const { password, ...result } = user;
+      return result;
+    });
+  }
+
+  async createOfficer(payload: any) {
+    const { firstname, lastname, email, password, departmentId, area } = payload;
+
+    const existingUser = await this.prisma.user.findFirst({
+      where: { email },
+    });
+    if (existingUser) {
+      throw new BadRequestException('User with this email already exists');
+    }
+
+    const hashedPassword = await this.encryptPassword(password, 10);
+
+    const user = await this.prisma.user.create({
+      data: {
+        firstname,
+        lastname,
+        email,
+        password: hashedPassword,
+        role: 'OFFICER',
+        officer: {
+          create: {
+            departmentId: Number(departmentId),
+            area,
+          }
+        }
+      },
+      include: {
+        officer: true
+      }
+    });
+
+    const { password: _, ...result } = user;
+    return result;
+  }
+
+  async findAllDepartments() {
+    return this.prisma.department.findMany();
+  }
+
+  async findAllOfficers() {
+    const officers = await this.prisma.officer.findMany({
+      include: {
+        user: true,
+        department: true,
+        assignedIssues: {
+          where: {
+            status: {
+              in: ['OPEN', 'IN_PROGRESS']
+            }
+          }
+        }
+      }
+    });
+
+    return officers.map(officer => ({
+      id: officer.id,
+      userId: officer.userId,
+      name: `${officer.user.firstname} ${officer.user.lastname}`,
+      email: officer.user.email,
+      mobile: officer.user.mobile,
+      department: officer.department.name,
+      area: officer.area,
+      activeIssues: officer.assignedIssues.length,
+      isActive: officer.isActive
+    }));
+  }
 }

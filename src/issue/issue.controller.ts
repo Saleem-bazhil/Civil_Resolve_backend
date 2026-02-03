@@ -37,7 +37,17 @@ export class IssueController {
 
   @Get('stats')
   getStats(@Req() req) {
-    return this.issueService.getStats(req.user.id);
+    return this.issueService.getStats(req.user.id, req.user.role);
+  }
+
+  @Get('chart-data')
+  getChartData(@Req() req) {
+    return this.issueService.getChartData(req.user.role);
+  }
+
+  @Get('analytics')
+  getAnalytics(@Req() req) {
+    return this.issueService.getAnalyticsData(req.user.role);
   }
 
   @Get(':id')

@@ -4,10 +4,11 @@ import { IssueStatus } from '@prisma/client';
 
 @Injectable()
 export class AssignmentService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async assign(category: string, area: string) {
     // department
+    console.log(`[AssignmentService] Finding department for category: '${category}'`);
     const department = await this.prisma.department.findFirst({
       where: {
         name: {
@@ -18,6 +19,7 @@ export class AssignmentService {
     });
 
     if (!department) {
+      const allDepts = await this.prisma.department.findMany({ select: { name: true } });
       throw new NotFoundException(
         `No department found for category ${category}`,
       );
@@ -41,7 +43,7 @@ export class AssignmentService {
       },
     });
 
-    let selectedOfficer:any = null;
+    let selectedOfficer: any = null;
 
     // least workload
     if (officers.length > 0) {
