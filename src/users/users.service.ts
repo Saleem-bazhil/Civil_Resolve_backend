@@ -75,7 +75,7 @@ export class UsersService {
         id: user.id,
         role: user.role,
       },
-      { expiresIn: '1d' },
+      { expiresIn: '30d' },
     );
     // return json web token
     return { accessToken };
