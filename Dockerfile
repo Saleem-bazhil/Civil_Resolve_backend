@@ -32,4 +32,5 @@ ENV NODE_ENV=production
 
 EXPOSE 3000
 
-CMD ["node", "dist/main.js"]
+# 🔥 FIXED (IMPORTANT)
+CMD ["node", "dist/src/main.js"]
