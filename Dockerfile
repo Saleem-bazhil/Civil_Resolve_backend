@@ -9,8 +9,7 @@ COPY . .
 
 RUN npx prisma generate
 
-RUN npx prisma migrate deploy
-
 RUN npm run build
 
-CMD ["npm", "run", "start"]
+# Run migration at container start (NOT build time)
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run start"]
